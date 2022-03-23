@@ -46,4 +46,3 @@ dtparam=touchscreen-inverted-x
 echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
 ```
 
-# hypertouch40
