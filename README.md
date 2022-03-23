@@ -4,18 +4,18 @@ HyperTouch 4.0 kernel driver
 
 guide for raspberry pi 
 
-## prerequisites
+## 1. prerequisites
 ```bash
 sudo apt-get install dkms git
 ```
 
-## clone repository
+## 2. clone repository
 
 ```bash
 git clone https://github.com/shpi/hypertouch40
 ```
 
-## install
+## 3. install
 ```bash
 cd hypertouch40
    sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
@@ -24,9 +24,13 @@ cd hypertouch40
    ```
    
 
-## /boot/config.txt
+## 4. update /boot/config.txt
 
-add
+add following lines to config.txt
+
+```bash
+sudo nano /boot/config.txt
+```
 
 ```bash
 display_rotate=3
@@ -45,4 +49,5 @@ dtparam=touchscreen-inverted-x
 ```bash
 echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
 ```
+
 
