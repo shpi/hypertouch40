@@ -1,5 +1,7 @@
 # HyperTouch 4.0 Kernel driver
 
+(also compatible for HyperPixel 4.0 rectangle)
+
 HyperTouch 4.0 kernel driver
 
 guide for raspberry pi 
