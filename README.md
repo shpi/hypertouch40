@@ -48,6 +48,10 @@ dtparam=touchscreen-inverted-x
 
 ## Control backlight (min:0 max:31)
 
+Our kernel module provides a fully compliant backlight interface that conforms to the Linux subsystem. All known
+backlight controls and features will work. However if u want to manually control the backlight,
+u can do that via commandline.
+
 ```bash
 echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
 ```
