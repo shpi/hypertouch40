@@ -1,4 +1,4 @@
-# HyperTouch 4.0 Kernel driver
+# HyperTouch 4.0 Kernel driver (32bit for now only)
 
 (also compatible for HyperPixel 4.0 rectangle, but without backlight control)
 
