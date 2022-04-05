@@ -1,4 +1,4 @@
-# HyperTouch 4.0 Kernel driver
+# HyperTouch 4.0 Kernel driver (32bit for now only)
 
 (also compatible for HyperPixel 4.0 rectangle, but without backlight control)
 
@@ -8,7 +8,9 @@ guide for raspberry pi
 
 ## 1. prerequisites
 ```bash
-sudo apt-get install dkms git
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install dkms git raspberrypi-kernel-headers
 ```
 
 ## 2. clone repository
