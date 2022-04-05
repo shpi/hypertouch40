@@ -14,6 +14,7 @@
 
 #include <linux/backlight.h>
 #include <linux/delay.h>
+#include <linux/io.h>
 #include <linux/err.h>
 #include <linux/fb.h>
 #include <linux/gpio.h>
@@ -27,19 +28,20 @@
 #include <linux/slab.h>
 
 #define ADDRESS_AL3050 0x5800
-#define T_DELAY_NS 100000
-#define T_DETECTION_NS 450000
-#define T_START_NS 4000
-#define T_EOS_NS 4000
+#define T_DELAY_NS 100
+#define T_DETECTION_NS 450
+#define T_START_NS 4
+#define T_EOS_NS 4
 #define T_RESET_MS 4
-#define T_LOGIC_1_NS 5000
-#define T_LOGIC_0_NS 15000
+#define T_LOGIC_1_NS 5
+#define T_LOGIC_0_NS 15
 #define T_LOGIC_NS T_LOGIC_1_NS + T_LOGIC_0_NS
 #define BRIGHTNESS_MAX 31
 #define BRIGHTNESS_BMASK 0x1f
 #define RFA_BMASK 0x80
-#define RFA_ACK_WAIT 3500
-#define RFA_MAX_ACK_TIME 900000
+#define RFA_ACK_WAIT 3
+#define RFA_MAX_ACK_TIME 900
+
 
 struct al3050_platform_data {
 
@@ -61,9 +63,9 @@ static void al3050_init(struct backlight_device *bl) {
   gpiod_direction_output(pchip->gpiod, 0);
   mdelay(T_RESET_MS);
   gpiod_direction_output(pchip->gpiod, 1);
-  ndelay(T_DELAY_NS);
+  udelay(T_DELAY_NS);
   gpiod_direction_output(pchip->gpiod, 0);
-  ndelay(T_DETECTION_NS);
+  udelay(T_DETECTION_NS);
   gpiod_direction_output(pchip->gpiod, 1);
   local_irq_restore(flags);
 }
@@ -78,16 +80,16 @@ static void al3050_write_lcd_value(struct al3050_bl_data *pchip,
     gpiod_direction_output(pchip->gpiomosi,
                            (((data & (1 << (count - 1))) != 0) << 2));
     gpiod_direction_output(pchip->gpiock, 0);
-    ndelay(T_START_NS);
+    udelay(T_START_NS);
     gpiod_direction_output(pchip->gpiock, 1);
-    ndelay(T_START_NS);
+    udelay(T_START_NS);
     count--;
 
   } while (count);
 
   gpiod_direction_output(pchip->gpiomosi, 0);
   gpiod_direction_output(pchip->gpiocs, 1);
-  ndelay(T_START_NS);
+  udelay(T_START_NS);
 }
 
 static int al3050_backlight_set_value(struct backlight_device *bl) {
@@ -107,7 +109,7 @@ static int al3050_backlight_set_value(struct backlight_device *bl) {
   /* t_start : 4us high before data byte */
   local_irq_save(flags);
   gpiod_direction_output(pchip->gpiod, 1);
-  ndelay(T_START_NS);
+  udelay(T_START_NS);
 
   for (max_bmask >>= 1; max_bmask > 0x0; max_bmask >>= 1) {
     int t_low;
@@ -117,24 +119,24 @@ static int al3050_backlight_set_value(struct backlight_device *bl) {
       t_low = T_LOGIC_0_NS;
 
     gpiod_direction_output(pchip->gpiod, 0);
-    ndelay(t_low);
+    udelay(t_low);
     gpiod_direction_output(pchip->gpiod, 1);
-    ndelay(T_LOGIC_NS - t_low);
+    udelay(T_LOGIC_NS - t_low);
 
     if (max_bmask == addr_bmask) {
       gpiod_direction_output(pchip->gpiod, 0);
       /* t_eos : low after address byte */
-      ndelay(T_EOS_NS);
+      udelay(T_EOS_NS);
       gpiod_direction_output(pchip->gpiod, 1);
       /* t_start : high before data byte */
-      ndelay(T_START_NS);
+      udelay(T_START_NS);
     }
   }
   gpiod_direction_output(pchip->gpiod, 0);
 
   /* t_eos : 4us low after address byte */
 
-  ndelay(T_EOS_NS);
+  udelay(T_EOS_NS);
 
   if (pchip->rfa_en) {
     int max_ack_time = RFA_MAX_ACK_TIME;
@@ -149,7 +151,7 @@ static int al3050_backlight_set_value(struct backlight_device *bl) {
       printk(KERN_ERR "AL3050 no ack, reinit.");
       al3050_init(bl);
     } else
-      ndelay(max_ack_time);
+      udelay(max_ack_time);
   }
   gpiod_direction_output(pchip->gpiod, 1);
   local_irq_restore(flags);
