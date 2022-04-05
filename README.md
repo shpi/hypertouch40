@@ -8,7 +8,7 @@ guide for raspberry pi
 
 ## 1. prerequisites
 ```bash
-sudo apt-get install dkms git
+sudo apt-get install dkms git raspberrypi-kernel-headers
 ```
 
 ## 2. clone repository
