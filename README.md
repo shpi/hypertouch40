@@ -8,6 +8,8 @@ guide for raspberry pi
 
 ## 1. prerequisites
 ```bash
+sudo apt-get update
+sudo apt-get upgrade
 sudo apt-get install dkms git raspberrypi-kernel-headers
 ```
 
