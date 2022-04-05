@@ -45,6 +45,14 @@ dtoverlay=hypertouch40
 dtparam=touchscreen-swapped-x-y
 dtparam=touchscreen-inverted-x
 ```
+## 5. reboot
+
+Its necessary to reboot the pi, after changing config.txt
+
+```bash
+sudo reboot
+```
+
 
 ## Control backlight (min:0 max:31)
 
