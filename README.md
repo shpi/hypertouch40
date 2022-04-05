@@ -22,10 +22,10 @@ git clone https://github.com/shpi/hypertouch40
 ## 3. install
 ```bash
 cd hypertouch40
-   sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
-   sudo dkms install hypertouch40/1.0 
-   sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
-   ```
+sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
+sudo dkms install hypertouch40/1.0 
+sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
+```
    
 
 ## 4. update /boot/config.txt
