@@ -1,0 +1,19 @@
+# Enable DRM VC4 V3D driver
+#dtoverlay=vc4-kms-v3d
+max_framebuffers=1
+
+# Run in 64-bit mode
+# arm_64bit=1
+
+# Disable compensation for displays with overscan
+disable_overscan=1
+
+display_rotate=3
+enable_dpi_lcd=1
+dpi_group=2
+dpi_mode=87
+dpi_output_format=0x7f216
+dpi_timings=480 0 10 16 59 800 0 15 113 15 0 0 0 60 0 32000000 6
+dtoverlay=hypertouch40
+dtparam=touchscreen-swapped-x-y
+dtparam=touchscreen-inverted-x
