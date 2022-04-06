@@ -10,6 +10,13 @@ guide for raspberry pi
 ```bash
 sudo apt-get update
 sudo apt-get upgrade
+sudo reboot
+```
+
+Reboot is necessary, so that dkms finds actual kernel-headers.
+
+
+```bash
 sudo apt-get install dkms git raspberrypi-kernel-headers
 ```
 
