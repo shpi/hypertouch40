@@ -37,7 +37,7 @@ sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
 
 ## 4. update /boot/config.txt
 
-add following lines to config.txt
+add following lines to config.txt. Please make sure spi, i2c, display autodetect is removed before. U can also try our config.txt in this repository, if it dont work.
 
 ```bash
 sudo nano /boot/config.txt
