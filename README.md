@@ -6,6 +6,11 @@ HyperTouch 4.0 kernel driver
 
 guide for raspberry pi 
 
+## Warning
+
+Please mate the extension header with the display pcb only one time. When u dissassemble the extension header from the display,
+it can happen that you accidentially remove some goldpins and maybe loose some. When u remove the Raspberry Pi from the display please hold the extension header plastic during that process.
+
 ## 1. prerequisites
 ```bash
 sudo apt-get update
