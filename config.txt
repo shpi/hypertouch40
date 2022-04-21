@@ -1,19 +1,47 @@
-# Enable DRM VC4 V3D driver
-#dtoverlay=vc4-kms-v3d
-max_framebuffers=1
-
-# Run in 64-bit mode
+# Run in 64-bit mode?
 # arm_64bit=1
 
-# Disable compensation for displays with overscan
-disable_overscan=1
+# Comment out or delete the internal GPIO interfaces because DPI requires most of the pins itself.
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
 
-display_rotate=3
+# Disabled HDMI output driver.
+#dtoverlay=vc4-kms-v3d
+
+# Framebuffers reduced to 1 for the hypertouch display only. Saves RAM.
+max_framebuffers=1
+
+
+# Include and configure hypertouch driver
+dtoverlay=hypertouch40
 enable_dpi_lcd=1
 dpi_group=2
 dpi_mode=87
 dpi_output_format=0x7f216
 dpi_timings=480 0 10 16 59 800 0 15 113 15 0 0 0 60 0 32000000 6
-dtoverlay=hypertouch40
+
+
+
+# Select one orientation below!
+
+# Standard: Landscape, top is at pin header:
+display_rotate=3
 dtparam=touchscreen-swapped-x-y
 dtparam=touchscreen-inverted-x
+
+
+# 180° rotated: Landscape, top is on the opposite of pin header
+# display_rotate=1
+# dtparam=touchscreen-swapped-x-y
+# dtparam=touchscreen-inverted-y
+
+
+# 270° rotated: Portrait, top is on opposite of flex connector cable
+# display_rotate=0
+
+
+# 90° rotated: Portrait, top is at flex connector cable
+# display_rotate=2
+# dtparam=touchscreen-inverted-y
+# dtparam=touchscreen-inverted-x

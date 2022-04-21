@@ -1,67 +1,143 @@
 # HyperTouch 4.0 Kernel driver
 
-(also compatible for HyperPixel 4.0 rectangle, but without backlight control)
+(Also compatible for HyperPixel 4.0 rectangle, but without backlight control)
 
 HyperTouch 4.0 kernel driver
 
-guide for raspberry pi 
+Guide for raspberry pi 
 
 ## Warning
 
-Please mate the extension header with the display pcb only one time. When u dissassemble the extension header from the display,
-it can happen that you accidentially remove some goldpins and maybe loose some. When u remove the Raspberry Pi from the display please hold the extension header plastic during that process.
+Please mate the extension header with the display pcb only one time. When you dissassemble the extension header from the display,
+it can happen that you accidentially remove some goldpins and maybe loose some. When you remove the Raspberry Pi from the display please hold the extension header plastic during that process.
 
-## 1. prerequisites
+## 1. Prerequisites
+
+Update system and reboot:
 ```bash
 sudo apt-get update
 sudo apt-get upgrade
 sudo reboot
 ```
 
-Reboot is necessary, so that dkms finds actual kernel-headers.
+The reboot is necessary for dkms finding the current kernel-headers.
 
 
 ```bash
 sudo apt-get install dkms git raspberrypi-kernel-headers
 ```
 
-## 2. clone repository
+## 2. Clone repository into home directory
 
 ```bash
+cd
 git clone https://github.com/shpi/hypertouch40
 ```
 
-## 3. install
+## 3. Install
+
 ```bash
 cd hypertouch40
 sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
-sudo dkms install hypertouch40/1.0 
+sudo dkms install hypertouch40/1.0
+```
+
+## 4. Configure i²c address and compile dtb
+
+i²c address of the touchscreen varies between `0x14` and `0x5d`.
+
+Choose a method:
+
+**Automatic method** with helper script:
+```bash
+sudo bash compile-dtb
+```
+
+You may also skip autodetect and force a specific address instead. `i2cdetect -y 11` tells you the correct address. For example **5d**:
+```bash
+sudo bash compile-dtb 5d
+```
+
+
+**Manual method**: 
+Find the correct i²c address:
+```bash
+i2cdetect -y 11
+```
+
+If **14** is highlighted, the address is set correctly already. Proceed with compile step.
+
+If **5d** is highlighted, edit `hypertouch40.dts` with a text editor and replace the addresses to **5d** on line 57 and 59:
+```
+            ft6236: ft6236@5d {
+...
+                reg = <0x5d>;
+```
+
+Compile `hypertouch40.dts` into `/boot/overlays/hypertouch40.dtbo`:
+```bash
 sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
 ```
-   
 
-## 4. update /boot/config.txt
+## 4. Update /boot/config.txt
 
-add following lines to config.txt. Please make sure spi, i2c, display autodetect is removed before. U can also try our config.txt in this repository, if it dont work.
+Modify `config.txt` to enable and configure the drivers. Please make sure spi, i2c, display autodetect is removed before. You can also try our config.txt in this repository, if it doesn't work.
 
 ```bash
 sudo nano /boot/config.txt
 ```
 
 ```bash
-display_rotate=3
+# Comment out or delete the internal GPIO interfaces because DPI requires most of the pins itself.
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+
+
+# Include and configure hypertouch driver
+dtoverlay=hypertouch40
 enable_dpi_lcd=1
 dpi_group=2
 dpi_mode=87
 dpi_output_format=0x7f216
 dpi_timings=480 0 10 16 59 800 0 15 113 15 0 0 0 60 0 32000000 6
-dtoverlay=hypertouch40
+
+# Disable (comment out) HDMI output driver.
+# Dual output is probably not supported on all models.
+#dtoverlay=vc4-kms-v3d
+
+# Reduce framebuffers to 1 for the hypertouch display. Saves RAM.
+max_framebuffers=1
+
+
+# Select one orientation below!
+
+# Standard: Landscape, top is at pin header:
+display_rotate=3
 dtparam=touchscreen-swapped-x-y
 dtparam=touchscreen-inverted-x
+
+
+# 180° rotated: Landscape, top is on the opposite of pin header
+# display_rotate=1
+# dtparam=touchscreen-swapped-x-y
+# dtparam=touchscreen-inverted-y
+
+
+# 270° rotated: Portrait, top is on opposite of flex connector cable
+# display_rotate=0
+
+
+# 90° rotated: Portrait, top is at flex connector cable
+# display_rotate=2
+# dtparam=touchscreen-inverted-y
+# dtparam=touchscreen-inverted-x
+
 ```
+
 ## 5. reboot
 
-Its necessary to reboot the pi, after changing config.txt
+Reboot the pi after a change to config.txt to apply the new settings.
 
 ```bash
 sudo reboot
@@ -70,12 +146,8 @@ sudo reboot
 
 ## Control backlight (min:0 max:31)
 
-Our kernel module provides a fully compliant backlight interface that conforms to the Linux subsystem. All known
-backlight controls and features will work. However if u want to manually control the backlight,
-u can do that via commandline.
+Our kernel module provides a fully compliant backlight interface that conforms to the Linux subsystem. All known backlight controls and features will work. However if you want to manually control the backlight, you can do that via command line also:
 
 ```bash
 echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
 ```
-
-
