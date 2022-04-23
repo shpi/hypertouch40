@@ -42,44 +42,15 @@ sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
 sudo dkms install hypertouch40/1.0
 ```
 
-## 4. Configure i²c address and compile dtb
+## 4. Compile dtb
 
-i²c address of the touchscreen varies between `0x14` and `0x5d`.
-
-Choose a method:
-
-**Automatic method** with helper script:
-```bash
-sudo bash compile-dtb
-```
-
-You may also skip autodetect and force a specific address instead. `i2cdetect -y 11` tells you the correct address. For example **5d**:
-```bash
-sudo bash compile-dtb 5d
-```
-
-
-**Manual method**: 
-Find the correct i²c address:
-```bash
-i2cdetect -y 11
-```
-
-If **14** is highlighted, the address is set correctly already. Proceed with compile step.
-
-If **5d** is highlighted, edit `hypertouch40.dts` with a text editor and replace the addresses to **5d** on line 57 and 59:
-```
-            ft6236: ft6236@5d {
-...
-                reg = <0x5d>;
-```
 
 Compile `hypertouch40.dts` into `/boot/overlays/hypertouch40.dtbo`:
 ```bash
 sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
 ```
 
-## 4. Update /boot/config.txt
+## 5. Update /boot/config.txt
 
 Modify `config.txt` to enable and configure the drivers. Please make sure spi, i2c, display autodetect is removed before. You can also try our config.txt in this repository, if it doesn't work.
 
@@ -135,7 +106,7 @@ dtparam=touchscreen-inverted-x
 
 ```
 
-## 5. reboot
+## 6. reboot
 
 Reboot the pi after a change to config.txt to apply the new settings.
 
@@ -150,4 +121,40 @@ Our kernel module provides a fully compliant backlight interface that conforms t
 
 ```bash
 echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
+```
+## Issues with touch? Please run detection
+
+i²c address of the touchscreen varies between `0x14` and `0x5d`.
+
+Choose a method:
+
+**Automatic method** with helper script:
+```bash
+sudo bash compile-dtb
+```
+
+You may also skip autodetect and force a specific address instead. `i2cdetect -y 11` tells you the correct address. For example **5d**:
+```bash
+sudo bash compile-dtb 5d
+```
+
+
+**Manual method**: 
+Find the correct i²c address:
+```bash
+i2cdetect -y 11
+```
+
+If **14** is highlighted, the address is set correctly already. Proceed with compile step.
+
+If **5d** is highlighted, edit `hypertouch40.dts` with a text editor and replace the addresses to **5d** on line 57 and 59:
+```
+            ft6236: ft6236@5d {
+...
+                reg = <0x5d>;
+```
+
+Compile `hypertouch40.dts` into `/boot/overlays/hypertouch40.dtbo` again:
+```bash
+sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
 ```
