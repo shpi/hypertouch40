@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Check if the script is run as root
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+
+# Check if I²C device 11 is available
+if [ ! -e /dev/i2c-11 ]; then
+    echo "I²C device 11 not found. Enabling software I²C..."
+    dtoverlay i2c-gpio i2c_gpio_sda=10 i2c_gpio_scl=11 bus=11
+    
+fi
+
+
+# Install necessary packages
+apt-get install -y dkms git raspberrypi-kernel-headers i2c-tools
+
+# Clone the repository into the home directory
+cd $HOME
+git clone https://github.com/shpi/hypertouch40
+
+# Install HyperTouch
+cd hypertouch40
+ln -s $HOME/hypertouch40 /usr/src/hypertouch40-1.0
+dkms install hypertouch40/1.0
+
+# Ensure i2c-dev is in /dev/modules
+if ! grep -q "i2c-dev" /etc/modules; then
+    echo "i2c-dev not found in /etc/modules. Adding it now."
+    echo "i2c-dev" | sudo tee -a /etc/modules
+    sudo modprobe i2c-dev
+fi
+
+# Check if I²C device 11 is available
+if [ ! -e /dev/i2c-11 ]; then
+    echo "I²C device 11 not found. Exiting."
+    exit 1
+fi
+
+# Detect I²C address
+ADDR=${1-auto}
+
+if [ "$ADDR" == "auto" ]; then
+    echo "Autodetecting i²c address..."
+    for a in 14 5d; do
+        echo "Testing address $a..."
+        scan=$(i2cdetect -y 11 "0x$a" "0x$a" | tail -n +2 | cut -d' ' -f2-)
+        case $scan in
+            *"--"*)
+                echo "  - Unused."
+            ;;
+            *"UU"*)
+                echo "  - Address busy. Probably in use by driver."
+            ;;
+            *"$a"*)
+                echo "  - Address available. Using."
+                ADDR=$a
+                break
+            ;;
+        esac
+    done
+fi
+
+if [ "$ADDR" == "auto" ]; then
+    echo "Could not find i²c address. Exiting." >&2
+    exit 1
+fi
+
+# Compile dtb with detected address
+sed "s/{ADDR}/${ADDR}/" hypertouch40.dts.template | sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo -
+
+
+# Adding HyperTouch configurations
+cp config.txt /boot/config.txt
+
+# Reboot the system
+sudo reboot
