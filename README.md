@@ -153,8 +153,7 @@ If I²C-GPIO is not active yet, you can do it on the fly:
 
 ```
 dtoverlay i2c-gpio i2c_gpio_sda=10 i2c_gpio_scl=11 bus=11
-``
-
+```
 
 If **14** is highlighted, the address is set correctly already. Proceed with compile step.
 
