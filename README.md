@@ -1,4 +1,4 @@
-# HyperTouch 4.0 Kernel driver
+# HyperTouch 4.0 Installation
 
 (Also compatible for HyperPixel 4.0 rectangle, but without backlight control)
 
@@ -11,7 +11,16 @@ Guide for raspberry pi
 Please mate the extension header with the display pcb only one time. When you dissassemble the extension header from the display,
 it can happen that you accidentially remove some goldpins and maybe loose some. When you remove the Raspberry Pi from the display please hold the extension header plastic during that process.
 
-## 1. Prerequisites
+## FULL AUTOMATIC INSTALL *BETA*
+
+```
+wget https://raw.githubusercontent.com/shpi/hypertouch40/main/hypertouch40-install
+sudo bash hypertouch40-install
+```
+
+## Manual Install
+
+### 1. Prerequisites
 
 Update system and reboot:
 ```bash
@@ -24,25 +33,25 @@ The reboot is necessary for dkms finding the current kernel-headers.
 
 
 ```bash
-sudo apt-get install dkms git raspberrypi-kernel-headers
+sudo apt-get install dkms git raspberrypi-kernel-headers i2c-tools
 ```
 
-## 2. Clone repository into home directory
+### 2. Clone repository into home directory
 
 ```bash
 cd
 git clone https://github.com/shpi/hypertouch40
 ```
 
-## 3. Install
+### 3. Install
 
 ```bash
 cd hypertouch40
-sudo ln -s /home/pi/hypertouch40 /usr/src/hypertouch40-1.0
+sudo ln -s $HOME/hypertouch40 /usr/src/hypertouch40-1.0
 sudo dkms install hypertouch40/1.0
 ```
 
-## 4. Compile dtb
+### 4. Compile dtb
 
 
 Compile `hypertouch40.dts` into `/boot/overlays/hypertouch40.dtbo`:
@@ -50,7 +59,7 @@ Compile `hypertouch40.dts` into `/boot/overlays/hypertouch40.dtbo`:
 sudo dtc -I dts -O dtb -o /boot/overlays/hypertouch40.dtbo hypertouch40.dts
 ```
 
-## 5. Update /boot/config.txt
+### 5. Update /boot/config.txt
 
 Modify `config.txt` to enable and configure the drivers. Please make sure spi, i2c, display autodetect is removed before. You can also try our config.txt in this repository, if it doesn't work.
 
@@ -106,7 +115,7 @@ dtparam=touchscreen-inverted-x
 
 ```
 
-## 6. reboot
+### 6. reboot
 
 Reboot the pi after a change to config.txt to apply the new settings.
 
@@ -124,19 +133,8 @@ echo 31 | sudo tee /sys/class/backlight/soc\:backlight/brightness
 ```
 ## Issues with touch? Please run detection
 
-i²c address of the touchscreen varies between `0x14` and `0x5d`.
+i²c address of the touchscreen varies between `0x14` and `0x5d` depending on raspberry version.
 
-Choose a method:
-
-**Automatic method** with helper script:
-```bash
-sudo bash compile-dtb
-```
-
-You may also skip autodetect and force a specific address instead. `i2cdetect -y 11` tells you the correct address. For example **5d**:
-```bash
-sudo bash compile-dtb 5d
-```
 
 
 **Manual method**: 
@@ -144,6 +142,19 @@ Find the correct i²c address:
 ```bash
 i2cdetect -y 11
 ```
+
+If I²C is not available, activate by adding i2c-dev and i2c-bcm2708 in /etc/modules
+
+```
+echo "i2c-dev" | sudo tee -a /etc/modules
+```
+
+If I²C-GPIO is not active yet, you can do it on the fly:
+
+```
+dtoverlay i2c-gpio i2c_gpio_sda=10 i2c_gpio_scl=11 bus=11
+``
+
 
 If **14** is highlighted, the address is set correctly already. Proceed with compile step.
 
